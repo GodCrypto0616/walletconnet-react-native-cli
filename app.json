@@ -1,4 +1,5 @@
 {
   "name": "WcTestApp",
-  "displayName": "WcTestApp"
+  "displayName": "WcTestApp",
+  "scheme": "myapp"
 }

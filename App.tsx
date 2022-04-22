@@ -22,7 +22,13 @@ import {
 
 import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
 
-import {useWalletConnect} from '@walletconnect/react-native-dapp';
+import {scheme} from './app.json';
+
+import {
+  useWalletConnect,
+  withWalletConnect,
+} from '@walletconnect/react-native-dapp';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const shortenAddress = (address: string) => {
   return `${address.slice(0, 6)}...${address.slice(
@@ -158,4 +164,13 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+// export default App;
+export default withWalletConnect(App, {
+  clientMeta: {
+    description: 'Connect with WalletConnect',
+  },
+  redirectUrl: Platform.OS === 'web' ? window.location.origin : `${scheme}://`,
+  storageOptions: {
+    asyncStorage: AsyncStorage,
+  },
+});
