@@ -17,15 +17,19 @@ import {
   Text,
   useColorScheme,
   View,
+  TouchableOpacity,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors, Header} from 'react-native/Libraries/NewAppScreen';
+
+import {useWalletConnect} from '@walletconnect/react-native-dapp';
+
+const shortenAddress = (address: string) => {
+  return `${address.slice(0, 6)}...${address.slice(
+    address.length - 4,
+    address.length,
+  )}`;
+};
 
 const Section: React.FC<{
   title: string;
@@ -58,6 +62,16 @@ const Section: React.FC<{
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
+  const connector = useWalletConnect();
+
+  const connectWallet = React.useCallback(() => {
+    return connector.connect();
+  }, [connector]);
+
+  const killSession = React.useCallback(() => {
+    return connector.killSession();
+  }, [connector]);
+
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
@@ -73,20 +87,25 @@ const App = () => {
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
+          <Section title="Connect your wallet">
+            {!connector.connected && (
+              <TouchableOpacity
+                onPress={connectWallet}
+                style={styles.buttonStyle}>
+                <Text style={styles.buttonTextStyle}>Connect a Wallet</Text>
+              </TouchableOpacity>
+            )}
+            {!!connector.connected && (
+              <>
+                <Text>{shortenAddress(connector.accounts[0])}</Text>
+                <TouchableOpacity
+                  onPress={killSession}
+                  style={styles.buttonStyle}>
+                  <Text style={styles.buttonTextStyle}>Log out</Text>
+                </TouchableOpacity>
+              </>
+            )}
           </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -97,6 +116,8 @@ const styles = StyleSheet.create({
   sectionContainer: {
     marginTop: 32,
     paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sectionTitle: {
     fontSize: 24,
@@ -109,6 +130,31 @@ const styles = StyleSheet.create({
   },
   highlight: {
     fontWeight: '700',
+  },
+  separator: {
+    marginVertical: 30,
+    height: 1,
+    width: '80%',
+  },
+  buttonStyle: {
+    backgroundColor: '#3399FF',
+    borderWidth: 0,
+    color: '#FFFFFF',
+    borderColor: '#3399FF',
+    height: 40,
+    alignItems: 'center',
+    borderRadius: 30,
+    marginLeft: 35,
+    marginRight: 35,
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  buttonTextStyle: {
+    color: '#FFFFFF',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
